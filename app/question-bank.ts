@@ -10,6 +10,11 @@ export type Question = {
   options: string[];
   correct: number;
   explanation: string;
+  trap: {
+    label: string;
+    mechanism: string;
+    defense: string;
+  };
 };
 
 export type MockExam = {
@@ -21,6 +26,74 @@ export type MockExam = {
 };
 
 const difficultyLabels = ["Fundação", "Consolidação", "Aplicação", "Pressão", "Prova-alvo"];
+
+function trapFor(subject: Subject, skill: string): Question["trap"] {
+  if (subject === "Inglês") {
+    if (skill === "Inferência") {
+      return {
+        label: "Inferência × extrapolação",
+        mechanism: "O distrator reaproveita palavras do texto, mas acrescenta certeza, causa ou consequência que o autor não afirmou.",
+        defense: "Aceite apenas a conclusão sustentada pelo texto; desconfie de always, never, only e afirmações definitivas.",
+      };
+    }
+    if (skill === "Vocabulário em contexto") {
+      return {
+        label: "Tradução automática",
+        mechanism: "As alternativas pertencem ao mesmo campo de comércio exterior, mas só uma preserva o sentido da palavra naquele período.",
+        defense: "Substitua o termo pela alternativa e releia a frase completa antes de marcar.",
+      };
+    }
+    return {
+      label: "Detalhe verdadeiro, resposta errada",
+      mechanism: "O distrator menciona informação existente no texto, porém não responde exatamente ao comando.",
+      defense: "Circule mentalmente o verbo do enunciado e procure a informação que cumpre essa tarefa.",
+    };
+  }
+
+  if (subject === "RLM") {
+    if (skill.includes("Negação") || skill.includes("Quantificadores") || skill.includes("Equivalência")) {
+      return {
+        label: "Troca de quantificador",
+        mechanism: "A alternativa altera todos por nenhum, ou confunde a recíproca com a contrapositiva.",
+        defense: "Formalize a frase com p e q ou procure um único contraexemplo antes de avaliar as opções.",
+      };
+    }
+    return {
+      label: "Resultado intermediário",
+      mechanism: "Uma alternativa corresponde a uma conta correta feita na etapa errada; outra responde pelo complemento do que foi pedido.",
+      defense: "Anote a grandeza solicitada e confira unidade, complemento e última operação.",
+    };
+  }
+
+  if (subject === "Português") {
+    if (skill.includes("Interpretação")) {
+      return {
+        label: "Paráfrase × extrapolação",
+        mechanism: "O distrator preserva parte da tese, mas amplia, restringe ou torna absoluta uma afirmação do texto.",
+        defense: "Prefira a opção que resume o texto inteiro sem incluir sempre, apenas, nunca ou uma causa nova.",
+      };
+    }
+    return {
+      label: "Forma parecida, valor diferente",
+        mechanism: "A alternativa parece gramaticalmente possível, mas muda o sentido da relação ou o referente no contexto.",
+      defense: "Recoloque cada opção no trecho e verifique sentido, referente e encadeamento, não só a aparência da frase.",
+    };
+  }
+
+  if (subject === "Ética") {
+    return {
+      label: "Princípio correto, conduta incompleta",
+      mechanism: "O distrator cita um valor legítimo, mas omite registro, justificativa, comunicação do conflito ou controle necessário.",
+      defense: "Escolha a providência completa e verificável; mera boa intenção não substitui procedimento.",
+    };
+  }
+
+  return {
+    label: "Termos vizinhos e qualificadores absolutos",
+    mechanism: "As alternativas descrevem recursos relacionados, mas uma troca como sempre, automaticamente ou qualquer torna o item falso.",
+    defense: "Teste cada qualificador e separe função do recurso, condição de uso e efeito garantido.",
+  };
+}
 
 function item(
   id: string,
@@ -46,6 +119,7 @@ function item(
     options,
     correct: options.indexOf(correctText),
     explanation,
+    trap: trapFor(subject, skill),
   };
 }
 
@@ -104,19 +178,117 @@ function englishQuestions(level: number): Question[] {
     },
   ];
 
+  const mainDistractors = [
+    [
+      "Confirmar o embarque sem estabelecer condição para o carregamento.",
+      "Comunicar o adiamento já decidido de toda a remessa.",
+      "Explicar exclusivamente como preencher uma fatura comercial.",
+      "Informar a chegada da carga ao destino final.",
+    ],
+    [
+      "Justificar o cancelamento definitivo da entrega por falta de espaço.",
+      "Confirmar que toda a mercadoria será recebida nesta semana.",
+      "Explicar uma entrega parcial já liberada pela aduana.",
+      "Solicitar a devolução da mercadoria ao exportador.",
+    ],
+    [
+      "Confirmar a quantidade menor indicada pelo fornecedor.",
+      "Cancelar o pedido devido a uma divergência documental.",
+      "Solicitar a correção do prazo de entrega, e não da quantidade.",
+      "Informar que a produção já foi interrompida.",
+    ],
+    [
+      "Anunciar um aumento de custo sem apresentar alternativa.",
+      "Defender a entrega mais rápida por meio de dois contêineres.",
+      "Comparar rotas sem recomendar alteração operacional.",
+      "Propor redução do prazo, ainda que o custo unitário aumente.",
+    ],
+    [
+      "Confirmar que a carga foi liberada após a inspeção.",
+      "Solicitar a correção do endereço do exportador.",
+      "Explicar o procedimento de inspeção física da mercadoria.",
+      "Relatar erro documental sem efeito sobre a liberação.",
+    ],
+  ];
+  const detailDistractors = [
+    [
+      "A fatura pode ser enviada depois do meio-dia sem alterar o carregamento.",
+      `O carregamento já foi adiado por ${delays[0]} dias.`,
+      "O comprador deve enviar apenas uma cópia não assinada.",
+      "A remessa sairá na quinta-feira.",
+    ],
+    [
+      `A empresa receberá todas as ${quantities[1] * 2} unidades nesta semana.`,
+      "A mercadoria restante já passou pela liberação aduaneira.",
+      "A falta de espaço ocorreu no porto de origem.",
+      "O importador determinou a devolução dos bens.",
+    ],
+    [
+      "Os dois documentos registram a mesma quantidade.",
+      `A divergência é de ${quantities[2]} unidades.`,
+      "O documento corrigido pode ser emitido depois da interrupção da produção.",
+      "A confirmação do fornecedor contém 20 unidades a mais.",
+    ],
+    [
+      "A consolidação reduz necessariamente o prazo de entrega.",
+      "A mudança de rota diminuiu a tarifa de frete.",
+      "O exportador propôs separar um pedido em dois contêineres.",
+      `A entrega levará ${delays[3]} dias a menos.`,
+    ],
+    [
+      "O endereço do exportador foi registrado incorretamente.",
+      "O conhecimento de embarque foi emitido antes da inspeção.",
+      "A cópia revisada só será necessária depois da liberação.",
+      "A carga já foi entregue ao consignatário.",
+    ],
+  ];
+  const vocabularyDistractors = [
+    ["frete", "embarcador", "despacho aduaneiro", "transportadora"],
+    ["aduana", "estoque", "doca", "terminal portuário"],
+    ["comprador", "transportador", "consignatário", "despachante"],
+    ["contudo", "enquanto", "embora", "apesar disso"],
+    ["fatura comercial", "romaneio de carga", "certificado de origem", "pedido de compra"],
+  ];
+  const inferenceDistractors = [
+    [
+      "O envio tardio da fatura cancelará definitivamente a compra.",
+      "A assinatura da fatura garante que a carga chegará na sexta-feira.",
+      "O carregamento será adiado mesmo que o documento chegue no prazo.",
+      "A saída da remessa independe de providência do comprador.",
+    ],
+    [
+      "A liberação aduaneira já foi concluída para toda a mercadoria.",
+      "A limitação de espaço torna impossível qualquer entrega futura.",
+      "O importador recusou definitivamente os itens restantes.",
+      "Toda a carga permanecerá no armazém por prazo indeterminado.",
+    ],
+    [
+      "A divergência documental já interrompeu definitivamente a produção.",
+      "O fornecedor pretende reduzir o pedido em 20 unidades.",
+      "A correção do documento elimina qualquer outro risco de produção.",
+      "A quantidade da ordem de compra está necessariamente errada.",
+    ],
+    [
+      "A consolidação garante menor custo total e entrega mais rápida.",
+      "A mudança de rota não afetou o frete.",
+      "O exportador priorizou exclusivamente a velocidade.",
+      "Os dois pedidos serão cancelados se não forem consolidados.",
+    ],
+    [
+      "A inspeção tornou desnecessária a correção documental.",
+      "A revisão do endereço garante a entrega imediata da carga.",
+      "O consignatário forneceu deliberadamente um endereço falso.",
+      "O erro de endereço não interfere no processo de liberação.",
+    ],
+  ];
+
   return passages.flatMap((passage, index) => {
     const prefix = `S${level}-EN-${index + 1}`;
-    const otherMain = [
-      "Descrever regras de segurança de um aeroporto.",
-      "Anunciar a contratação de novos empregados.",
-      "Comparar modelos de aeronaves comerciais.",
-      "Apresentar resultados de uma pesquisa acadêmica.",
-    ];
     return [
-      item(prefix + "A", "Inglês", passage.skill, level, "The main purpose of the text is to:", passage.main, otherMain, `O texto se organiza em torno de: ${passage.main.toLowerCase()}`, passage.text),
-      item(prefix + "B", "Inglês", "Busca de informação específica", level, "According to the text, which statement is correct?", passage.detail, ["A carga já foi integralmente liberada.", "O comprador cancelou definitivamente o pedido.", "O transporte ocorrerá sem documentos.", "A empresa rejeitou todas as mercadorias."], `A informação aparece de forma explícita: ${passage.detail}`, passage.text),
-      item(prefix + "C", "Inglês", "Vocabulário em contexto", level, `In the text, “${passage.term}” is closest in meaning to:`, passage.meaning, ["seguro", "tripulação", "pista", "salário"], `No contexto de comércio exterior, “${passage.term}” significa ${passage.meaning}.`, passage.text),
-      item(prefix + "D", "Inglês", "Inferência", level, "It can be inferred from the text that:", passage.inference, ["Nenhum documento será necessário.", "O processo foi cancelado sem possibilidade de retomada.", "O texto trata de transporte de passageiros.", "A empresa desconhece a existência da carga."], `A inferência compatível com as relações de causa e consequência é: ${passage.inference}`, passage.text),
+      item(prefix + "A", "Inglês", passage.skill, level, "The main purpose of the text is to:", passage.main, mainDistractors[index], `O texto se organiza em torno de: ${passage.main.toLowerCase()}`, passage.text),
+      item(prefix + "B", "Inglês", "Busca de informação específica", level, "According to the text, which statement is correct?", passage.detail, detailDistractors[index], `A informação aparece de forma explícita: ${passage.detail}`, passage.text),
+      item(prefix + "C", "Inglês", "Vocabulário em contexto", level, `In the text, “${passage.term}” is closest in meaning to:`, passage.meaning, vocabularyDistractors[index], `No contexto de comércio exterior, “${passage.term}” significa ${passage.meaning}.`, passage.text),
+      item(prefix + "D", "Inglês", "Inferência", level, "It can be inferred from the text that:", passage.inference, inferenceDistractors[index], `A inferência compatível com as relações de causa e consequência é: ${passage.inference}`, passage.text),
     ];
   });
 }
@@ -215,6 +387,38 @@ function portugueseQuestions(level: number): Question[] {
     "Tecnologia útil não elimina o julgamento humano; ela amplia a capacidade de comparar evidências.",
   ];
   const texts = themes.map((theme, i) => `${theme} ${markers[(i + level - 1) % markers.length].replace(/^./, (c) => c.toUpperCase())}, decisões melhores dependem de atenção ao contexto.`);
+  const centralDistractors = [
+    [
+      "A rapidez de leitura reduz o tempo e, por isso, melhora necessariamente a compreensão.",
+      "A atenção ao contexto elimina por completo o risco de interpretar mal.",
+      "A pressa prejudica apenas quem desconhece o conteúdo cobrado.",
+      "A compreensão depende do tempo gasto, independentemente da atenção.",
+    ],
+    [
+      "A novidade é condição indispensável para recuperar informações com estabilidade.",
+      "Uma rotina consistente elimina a necessidade de revisar conteúdos.",
+      "A estabilidade decorre exclusivamente da repetição automática.",
+      "A rotina favorece a sensação de novidade mais do que a recuperação.",
+    ],
+    [
+      "O desconforto prova que a estratégia de estudo está necessariamente errada.",
+      "Revisar erros serve apenas para identificar falta de conteúdo.",
+      "O estudante deve evitar confrontar a própria estratégia para preservar a confiança.",
+      "A revisão é útil somente quando o erro decorre de desatenção.",
+    ],
+    [
+      "A simples divulgação de qualquer dado garante o controle social.",
+      "O controle social dispensa a possibilidade de verificar a informação.",
+      "Dados compreensíveis substituem a necessidade de acesso à informação.",
+      "A transparência fortalece o controle mesmo quando os dados são ininteligíveis.",
+    ],
+    [
+      "A tecnologia substitui o julgamento humano quando há grande volume de evidências.",
+      "O julgamento humano torna desnecessária a comparação apoiada por tecnologia.",
+      "A utilidade da tecnologia decorre de eliminar toda decisão humana.",
+      "Tecnologia e julgamento atuam de modo incompatível na análise de evidências.",
+    ],
+  ];
 
   return texts.flatMap((text, index) => {
     const prefix = `S${level}-PT-${index + 1}`;
@@ -234,7 +438,7 @@ function portugueseQuestions(level: number): Question[] {
     ];
     const grammar = grammarStems[(index + level - 1) % grammarStems.length];
     return [
-      item(prefix + "A", "Português", "Interpretação", level, "A ideia central do texto é:", central, ["A pressa sempre melhora decisões.", "O contexto deve ser ignorado.", "Todo erro decorre apenas de falta de conteúdo.", "A tecnologia torna a revisão desnecessária."], `A alternativa sintetiza a tese sem extrapolar: ${central}`, text),
+      item(prefix + "A", "Português", "Interpretação", level, "A ideia central do texto é:", central, centralDistractors[index], `A alternativa sintetiza a tese sem extrapolar: ${central}`, text),
       item(prefix + "B", "Português", "Morfossintaxe e coesão", level, grammar[0] as string, grammar[1] as string, grammar[2] as string[], grammar[3] as string, text),
     ];
   });
@@ -250,11 +454,56 @@ function ethicsQuestions(level: number): Question[] {
     { concept: "Proteção de dados", text: `${names[(level + 4) % 5]} quer compartilhar uma planilha com dados pessoais em grupo aberto apenas por conveniência.`, action: "Restringir o acesso, avaliar necessidade e usar canal seguro.", reason: "O tratamento deve respeitar finalidade, necessidade e segurança." },
   ];
   const concepts = ["Legalidade", "Impessoalidade", "Moralidade", "Transparência", "Conflito de interesses", "Accountability", "Eficiência", "Proteção de dados"];
+  const closeActionDistractors = [
+    [
+      "Manter a fotografia, desde que a campanha também contenha informação institucional.",
+      "Retirar apenas o nome do agente, preservando imagem e destaque pessoal.",
+      "Publicar a campanha e avaliar eventual promoção pessoal somente depois.",
+      "Submeter a peça apenas ao próprio beneficiado, sem controle independente.",
+    ],
+    [
+      "Negar o acesso preventivamente e justificar apenas se houver recurso.",
+      "Fornecer os dados por canal informal, sem registrar o atendimento.",
+      "Adiar a resposta até que o solicitante demonstre interesse pessoal.",
+      "Divulgar também dados protegidos para maximizar a transparência.",
+    ],
+    [
+      "Declarar o vínculo, mas permanecer como responsável pelo voto decisivo.",
+      "Afastar-se informalmente, sem comunicar ou registrar o conflito.",
+      "Participar da decisão se acreditar que consegue agir com neutralidade.",
+      "Omitir o vínculo enquanto a proposta do familiar for economicamente vantajosa.",
+    ],
+    [
+      "Apresentar somente os resultados favoráveis, sem explicar critérios ou falhas.",
+      "Prestar contas de modo informal, sem evidências que permitam verificação.",
+      "Transferir a responsabilidade integralmente à equipe executora.",
+      "Explicar as decisões apenas quando houver comprovação prévia de dano.",
+    ],
+    [
+      "Compartilhar a planilha e solicitar sigilo aos integrantes do grupo aberto.",
+      "Remover apenas os nomes, sem avaliar se os demais dados permitem identificação.",
+      "Usar o canal mais rápido e revisar a necessidade do compartilhamento depois.",
+      "Liberar acesso amplo porque a finalidade do trabalho é institucional.",
+    ],
+  ];
   return scenarios.flatMap((scenario, index) => {
     const prefix = `S${level}-ET-${index + 1}`;
+    const applicationQuestion = level >= 4
+      ? item(
+          prefix + "B",
+          "Ética",
+          "Julgamento de afirmativas",
+          level,
+          `Considere as afirmativas sobre o caso: I. ${scenario.action} II. A ausência de dano comprovado dispensa registro e providência preventiva. III. ${scenario.reason} Está correto o que se afirma em:`,
+          "I e III, apenas.",
+          ["I, apenas.", "II, apenas.", "I e II, apenas.", "I, II e III."],
+          `A afirmativa II é falsa: integridade exige prevenção e procedimento, mesmo antes de dano comprovado. I e III aplicam corretamente o dever: ${scenario.reason}`,
+          scenario.text,
+        )
+      : item(prefix + "B", "Ética", "Aplicação prática", level, "A conduta mais compatível com integridade é:", scenario.action, closeActionDistractors[index], scenario.reason, scenario.text);
     return [
       item(prefix + "A", "Ética", "Identificação de princípio", level, "O problema central do caso relaciona-se a:", scenario.concept, concepts.filter((c) => c !== scenario.concept).slice(0, 4), scenario.reason, scenario.text),
-      item(prefix + "B", "Ética", "Aplicação prática", level, "A conduta mais compatível com integridade é:", scenario.action, ["Ignorar a situação porque não houve dano comprovado.", "Ocultar o fato para preservar a imagem institucional.", "Decidir apenas com base em conveniência pessoal.", "Transferir informalmente a responsabilidade sem registro."], scenario.reason, scenario.text),
+      applicationQuestion,
     ];
   });
 }

@@ -32,6 +32,17 @@ test("question bank contains five valid 60-question exams", async () => {
     assert.equal(new Set(question.options).size, 5, question.id);
     assert.ok(question.correct >= 0 && question.correct <= 4, question.id);
     assert.ok(question.explanation.length >= 20, question.id);
+    assert.ok(question.trap.label.length >= 10, question.id);
+    assert.ok(question.trap.mechanism.length >= 40, question.id);
+    assert.ok(question.trap.defense.length >= 30, question.id);
   }
+  assert.ok(new Set(all.map((q) => q.trap.label)).size >= 8);
+  assert.deepEqual(
+    all.reduce((counts, question) => {
+      counts[question.correct] += 1;
+      return counts;
+    }, [0, 0, 0, 0, 0]),
+    [60, 60, 60, 60, 60],
+  );
   assert.doesNotMatch(source, /\uFFFD/);
 });

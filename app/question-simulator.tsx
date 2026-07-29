@@ -92,8 +92,16 @@ export function QuestionSimulator() {
       </div>
 
       <div className="quality-notice">
-        <strong>Contrato honesto:</strong> questões autorais alinhadas ao conteúdo do edital, não questões oficiais da FGV.
-        A dificuldade é uma progressão heurística; use os erros para orientar revisão, não como previsão de classificação.
+        <strong>Contrato honesto:</strong> questões autorais inspiradas em padrões recorrentes de provas da FGV e alinhadas ao edital,
+        mas não são questões oficiais nem possuem calibração psicométrica. Use os erros para orientar revisão, não como previsão de classificação.
+      </div>
+
+      <div className="trap-map" aria-label="Mapa de pegadinhas treinadas">
+        <span><b>Português</b> paráfrase × extrapolação</span>
+        <span><b>Inglês</b> detalhe × inferência</span>
+        <span><b>RLM</b> etapa × resposta pedida</span>
+        <span><b>Ética</b> princípio × procedimento</span>
+        <span><b>Informática</b> função × qualificador</span>
       </div>
 
       <div className="exam-selector" role="tablist" aria-label="Escolha do simulado">
@@ -155,6 +163,15 @@ export function QuestionSimulator() {
                 );
               })}
             </div>
+            {reviewOnlyErrors && (
+              <div className="trap-feedback">
+                <b>RESPOSTA · {current.options[current.correct]}</b>
+                <span>{current.explanation}</span>
+                <b>PEGADINHA TREINADA · {current.trap.label}</b>
+                <span>{current.trap.mechanism}</span>
+                <em>Defesa: {current.trap.defense}</em>
+              </div>
+            )}
             <div className="question-nav">
               <button disabled={questionIndex === 0} onClick={() => setQuestionIndex((n) => Math.max(0, n - 1))}>← Anterior</button>
               <button
@@ -200,6 +217,11 @@ export function QuestionSimulator() {
                 <p>{question.stem}</p>
                 <strong>Resposta: {question.options[question.correct]}</strong>
                 <small>{question.explanation}</small>
+                <div className="trap-feedback">
+                  <b>PEGADINHA TREINADA · {question.trap.label}</b>
+                  <span>{question.trap.mechanism}</span>
+                  <em>Defesa: {question.trap.defense}</em>
+                </div>
               </article>
             ))}
           </div>

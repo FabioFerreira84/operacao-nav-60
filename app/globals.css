@@ -774,13 +774,38 @@ button {
   color: #415a51;
   font-size: 12px;
   line-height: 1.6;
-  margin-bottom: 36px;
+  margin-bottom: 18px;
   max-width: 900px;
   padding: 10px 16px;
 }
 
 .quality-notice strong {
   color: var(--ink);
+}
+
+.trap-map {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(5, 1fr);
+  margin-bottom: 36px;
+}
+
+.trap-map span {
+  border-top: 1px solid rgba(7, 26, 34, 0.2);
+  color: #526860;
+  font-size: 10px;
+  line-height: 1.4;
+  padding-top: 10px;
+}
+
+.trap-map b {
+  color: var(--ink);
+  display: block;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  margin-bottom: 3px;
+  text-transform: uppercase;
 }
 
 .exam-selector {
@@ -1150,6 +1175,36 @@ button {
   margin-top: 7px;
 }
 
+.trap-feedback {
+  background: #e6efde;
+  border-left: 2px solid var(--signal-dark);
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 12px;
+}
+
+.trap-feedback b {
+  color: var(--signal-dark);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+}
+
+.trap-feedback span,
+.trap-feedback em {
+  color: #425950;
+  font-family: inherit;
+  font-size: 10px;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+.trap-feedback em {
+  color: var(--ink);
+  font-weight: 650;
+}
+
 .drill-copy > p:not(.section-kicker) {
   color: #50686f;
   font-size: 16px;
@@ -1385,6 +1440,10 @@ footer p {
   .quiz-shell {
     grid-template-columns: 210px 1fr;
   }
+
+  .trap-map {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 640px) {
@@ -1405,6 +1464,10 @@ footer p {
   .hero {
     min-height: auto;
     padding: 74px 22px 54px;
+  }
+
+  .trap-map {
+    grid-template-columns: 1fr;
   }
 
   .hero h1 {

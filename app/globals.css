@@ -13,6 +13,8 @@
   --violet: #ad8dff;
   --rose: #ff7d83;
   --white: #fffefa;
+  --font-geist-sans: "Segoe UI", Arial, sans-serif;
+  --font-geist-mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
 }
 
 * {

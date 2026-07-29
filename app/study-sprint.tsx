@@ -89,20 +89,7 @@ const scoreMap = [
   { subject: "Informática", questions: 5, color: "var(--rose)" },
 ];
 
-const englishTerms = [
-  ["shipment", "remessa / carregamento"],
-  ["freight", "frete / carga transportada"],
-  ["invoice", "fatura comercial"],
-  ["customs", "alfândega"],
-  ["warehouse", "armazém"],
-  ["supplier", "fornecedor"],
-  ["purchase order", "pedido de compra"],
-  ["bill of lading", "conhecimento de embarque"],
-  ["lead time", "prazo entre pedido e entrega"],
-  ["clearance", "liberação aduaneira — não autorização ATC"],
-  ["whereas", "enquanto / considerando que"],
-  ["therefore", "portanto"],
-];
+const englishTerms=[[`shipment`,`remessa / carregamento`],[`freight`,`frete / carga transportada`],[`invoice`,`fatura comercial`],[`supplier`,`fornecedor`],[`purchase order`,`pedido de compra`],[`bill of lading`,`conhecimento de embarque`],[`packing list`,`romaneio de carga / lista de volumes`],[`certificate of origin`,`certificado de origem`],[`consignee`,`consignatário / destinatário da carga`],[`consignor`,`remetente / expedidor da carga`],[`warehouse`,`armazém`],[`container`,`contêiner`],[`cargo`,`carga`],[`carrier`,`transportador`],[`forwarder`,`agente de cargas`],[`vessel`,`navio / embarcação`],[`port of loading`,`porto de embarque`],[`port of discharge`,`porto de descarga`],[`transit time`,`tempo de trânsito`],[`tracking`,`rastreamento`],[`customs`,`alfândega / aduana`],[`clearance`,`liberação aduaneira — não autorização ATC`],[`duty`,`tributo ou tarifa aduaneira`],[`tariff`,`tarifa`],[`inspection`,`inspeção`],[`declaration`,`declaração`],[`importer`,`importador`],[`exporter`,`exportador`],[`release`,`liberação da mercadoria`],[`customs broker`,`despachante aduaneiro`],[`buyer`,`comprador`],[`seller`,`vendedor`],[`quotation`,`cotação / proposta de preço`],[`payment terms`,`condições de pagamento`],[`due date`,`data de vencimento`],[`lead time`,`prazo entre pedido e entrega`],[`stock`,`estoque`],[`order`,`pedido`],[`delivery`,`entrega`],[`delay`,`atraso`],[`whereas`,`enquanto / considerando que`],[`therefore`,`portanto`],[`however`,`contudo / entretanto`],[`although`,`embora`],[`unless`,`a menos que`],[`otherwise`,`caso contrário`],[`regarding`,`a respeito de`],[`according to`,`de acordo com`],[`due to`,`devido a`],[`in order to`,`a fim de`]];
 
 function useCountdown() {
   const target = useMemo(
@@ -407,7 +394,7 @@ export function StudySprint() {
           </p>
           <div className="drill-stats">
             <span>
-              <strong>20</strong> questões
+              <strong>50</strong> termos
             </span>
             <span>
               <strong>33%</strong> da nota
@@ -420,7 +407,7 @@ export function StudySprint() {
 
         <div className="flashcard" aria-live="polite">
           <div className="flashcard-top">
-            <span>TERM {String(termIndex + 1).padStart(2, "0")}</span>
+            <span>BLOCO {Math.floor(termIndex / 10) + 1}/5 · TERM {String(termIndex + 1).padStart(2, "0")}</span>
             <span>{termIndex + 1}/{englishTerms.length}</span>
           </div>
           <strong>{englishTerms[termIndex][0]}</strong>

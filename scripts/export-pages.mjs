@@ -6,7 +6,6 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 const clientDir = path.join(projectRoot, "dist", "client");
 const outputDir = path.join(projectRoot, "pages-dist");
 const siteBase = "/operacao-nav-60";
-const assetRevision = "public-2";
 
 await rm(outputDir, { recursive: true, force: true });
 await mkdir(outputDir, { recursive: true });
@@ -39,10 +38,6 @@ html = html
   .replace(
     /url\([^)]*?\.vinext\/fonts\/([^/]+\/[^/)]+\.woff2)\)/g,
     `url(${siteBase}/assets/_vinext_fonts/$1)`,
-  )
-  .replace(
-    new RegExp(`(${siteBase}/assets/[^"'\\\\s)]+?\\.(?:css|js))`, "g"),
-    `$1?v=${assetRevision}`,
   );
 
 await writeFile(path.join(outputDir, "index.html"), html, "utf8");
@@ -50,6 +45,7 @@ await writeFile(path.join(outputDir, "404.html"), html, "utf8");
 await writeFile(path.join(outputDir, ".nojekyll"), "", "utf8");
 
 const assetsDir = path.join(outputDir, "assets");
+const renamedAssets = new Map();
 for (const entry of await readdir(assetsDir, { withFileTypes: true })) {
   if (!entry.isFile() || !/\.(?:js|css)$/.test(entry.name)) continue;
   const filePath = path.join(assetsDir, entry.name);
@@ -57,7 +53,27 @@ for (const entry of await readdir(assetsDir, { withFileTypes: true })) {
   const patched = source
     .replaceAll("return`/`+e", `return\`${siteBase}/\`+e`)
     .replaceAll("/assets/_vinext_fonts/", `${siteBase}/assets/_vinext_fonts/`);
-  await writeFile(filePath, patched, "utf8");
+  if (patched === source && !entry.name.endsWith(".css")) continue;
+
+  const renamed = entry.name.replace(/\.(js|css)$/, "-pages.$1");
+  await writeFile(path.join(assetsDir, renamed), patched, "utf8");
+  await rm(filePath);
+  renamedAssets.set(entry.name, renamed);
+}
+
+const referenceFiles = [
+  path.join(outputDir, "index.html"),
+  path.join(outputDir, "404.html"),
+  ...(await readdir(assetsDir, { withFileTypes: true }))
+    .filter((entry) => entry.isFile() && /\.(?:js|css)$/.test(entry.name))
+    .map((entry) => path.join(assetsDir, entry.name)),
+];
+for (const filePath of referenceFiles) {
+  let source = await readFile(filePath, "utf8");
+  for (const [original, renamed] of renamedAssets) {
+    source = source.replaceAll(original, renamed);
+  }
+  await writeFile(filePath, source, "utf8");
 }
 
 const exportedHtml = await readFile(path.join(outputDir, "index.html"), "utf8");

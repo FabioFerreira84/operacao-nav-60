@@ -12,6 +12,14 @@ type SavedResult = {
 
 const subjectOrder: Subject[] = ["Inglês", "RLM", "Português", "Ética", "Informática"];
 
+const subjectActions: Record<Subject, string> = {
+  Inglês: "Releia o trecho procurando a frase que sustenta cada alternativa e elimine extrapolações.",
+  RLM: "Refaça a questão anotando a grandeza pedida, as unidades e cada resultado intermediário.",
+  Português: "Compare a extensão da alternativa com a tese: procure absolutizações, causas novas e mudança de referente.",
+  Ética: "Separe o princípio abstrato da providência completa: registro, justificativa, comunicação e controle.",
+  Informática: "Teste os qualificadores da alternativa e diferencie função, condição de uso e efeito garantido.",
+};
+
 export function QuestionSimulator() {
   const [examIndex, setExamIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -76,6 +84,20 @@ export function QuestionSimulator() {
 
   const result = results[exam.id];
   const answeredCount = exam.questions.filter((question) => answers[question.id] !== undefined).length;
+  const errors = exam.questions.filter((question) => answers[question.id] !== question.correct);
+  const trapErrors = Object.entries(
+    errors.reduce<Record<string, number>>((counts, question) => {
+      counts[question.trap.label] = (counts[question.trap.label] ?? 0) + 1;
+      return counts;
+    }, {}),
+  ).sort((a, b) => b[1] - a[1]);
+  const subjectRanking = subjectOrder
+    .map((subject) => {
+      const row = result?.bySubject[subject] ?? { correct: 0, total: 0 };
+      return { subject, ...row, rate: row.total ? row.correct / row.total : 0 };
+    })
+    .sort((a, b) => a.rate - b.rate);
+  const weakest = subjectRanking[0];
 
   return (
     <section className="section simulator-section" id="simulados">
@@ -210,11 +232,28 @@ export function QuestionSimulator() {
               Ir para o próximo nível
             </button>
           </div>
+
+          <div className="diagnostic-feedback">
+            <div>
+              <span>DIAGNÓSTICO PRIORITÁRIO</span>
+              <strong>{weakest?.subject}: {weakest?.correct}/{weakest?.total}</strong>
+              <p>{weakest ? subjectActions[weakest.subject] : "Conclua o simulado para receber uma recomendação."}</p>
+            </div>
+            <div>
+              <span>PEGADINHAS QUE MAIS CUSTARAM PONTOS</span>
+              {trapErrors.slice(0, 3).map(([label, count]) => (
+                <p key={label}><b>{count}×</b> {label}</p>
+              ))}
+              {trapErrors.length === 0 && <p>Nenhuma: você acertou todas as questões.</p>}
+            </div>
+          </div>
+
           <div className="answer-review">
-            {exam.questions.filter((q) => answers[q.id] !== q.correct).slice(0, 10).map((question) => (
+            {errors.map((question) => (
               <article key={question.id}>
                 <span>{question.subject} · {question.skill}</span>
                 <p>{question.stem}</p>
+                <small className="wrong-answer">Sua resposta: {question.options[answers[question.id] ?? -1] ?? "Não respondida"}</small>
                 <strong>Resposta: {question.options[question.correct]}</strong>
                 <small>{question.explanation}</small>
                 <div className="trap-feedback">
@@ -224,6 +263,12 @@ export function QuestionSimulator() {
                 </div>
               </article>
             ))}
+            {errors.length === 0 && (
+              <article className="perfect-result">
+                <strong>Nenhum erro neste simulado.</strong>
+                <small>Para testar retenção, refaça as questões mais difíceis depois de um intervalo, sem consultar a correção.</small>
+              </article>
+            )}
           </div>
         </div>
       )}

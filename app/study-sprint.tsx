@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { QuestionSimulator } from "./question-simulator";
 
 type Mission = {
   id: string;
@@ -176,6 +177,7 @@ export function StudySprint() {
           <a href="#rota">Rota</a>
           <a href="#placar">Placar</a>
           <a href="#ingles">Drill</a>
+          <a href="#simulados">Simulados</a>
         </nav>
         <a
           className="official-link"
@@ -390,6 +392,8 @@ export function StudySprint() {
           </div>
         </article>
       </section>
+
+      <QuestionSimulator />
 
       <section className="section drill-section" id="ingles">
         <div className="drill-copy">

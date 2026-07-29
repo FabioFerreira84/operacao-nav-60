@@ -33,5 +33,7 @@ test("renders the NAV 60 study sprint", async () => {
   assert.match(html, /comércio exterior/i);
   assert.match(html, /60 questões/i);
   assert.match(html, /02 AGO 2026/i);
+  assert.match(html, /300 questões/i);
+  assert.match(html, /Cinco degraus de pressão/i);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });

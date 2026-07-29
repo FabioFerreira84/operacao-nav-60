@@ -36,7 +36,7 @@ html = html
   .replaceAll('"/assets/', `"${siteBase}/assets/`)
   .replaceAll('"/favicon.svg', `"${siteBase}/favicon.svg`)
   .replace(
-    /url\([^)]*?\.vinext\/fonts\/[^/]+\/([^/)]+\.woff2)\)/g,
+    /url\([^)]*?\.vinext\/fonts\/([^/]+\/[^/)]+\.woff2)\)/g,
     `url(${siteBase}/assets/_vinext_fonts/$1)`,
   );
 
@@ -46,10 +46,12 @@ await writeFile(path.join(outputDir, ".nojekyll"), "", "utf8");
 
 const assetsDir = path.join(outputDir, "assets");
 for (const entry of await readdir(assetsDir, { withFileTypes: true })) {
-  if (!entry.isFile() || !entry.name.endsWith(".js")) continue;
+  if (!entry.isFile() || !/\.(?:js|css)$/.test(entry.name)) continue;
   const filePath = path.join(assetsDir, entry.name);
   const source = await readFile(filePath, "utf8");
-  const patched = source.replaceAll("return`/`+e", `return\`${siteBase}/\`+e`);
+  const patched = source
+    .replaceAll("return`/`+e", `return\`${siteBase}/\`+e`)
+    .replaceAll("/assets/_vinext_fonts/", `${siteBase}/assets/_vinext_fonts/`);
   await writeFile(filePath, patched, "utf8");
 }
 

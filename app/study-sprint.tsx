@@ -109,14 +109,15 @@ function useCountdown() {
     () => new Date("2026-08-02T08:00:00-03:00").getTime(),
     [],
   );
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
+    setNow(Date.now());
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, []);
 
-  const distance = Math.max(0, target - now);
+  const distance = Math.max(0, target - (now ?? target));
   return {
     days: Math.floor(distance / 86_400_000),
     hours: Math.floor((distance / 3_600_000) % 24),

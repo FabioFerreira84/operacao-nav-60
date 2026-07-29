@@ -53,7 +53,10 @@ for (const entry of await readdir(assetsDir, { withFileTypes: true })) {
   const patched = source
     .replaceAll("return`/`+e", `return\`${siteBase}/\`+e`)
     .replaceAll("/assets/_vinext_fonts/", `${siteBase}/assets/_vinext_fonts/`);
-  if (patched === source && !entry.name.endsWith(".css")) continue;
+  if (entry.name.endsWith(".js")) {
+    if (patched !== source) await writeFile(filePath, patched, "utf8");
+    continue;
+  }
 
   const renamed = entry.name.replace(/\.(js|css)$/, "-pages.$1");
   await writeFile(path.join(assetsDir, renamed), patched, "utf8");
